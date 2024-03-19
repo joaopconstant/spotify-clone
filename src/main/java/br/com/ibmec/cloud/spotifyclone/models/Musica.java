@@ -1,9 +1,9 @@
 package br.com.ibmec.cloud.spotifyclone.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -20,6 +20,7 @@ public class Musica {
     @Column
     private Integer duracao;
 
-    @ManyToOne
+    @ManyToOne()
+    @JsonIgnore
     private Banda banda;
 }

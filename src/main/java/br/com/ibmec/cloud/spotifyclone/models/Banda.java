@@ -3,12 +3,17 @@ package br.com.ibmec.cloud.spotifyclone.models;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Data
 @Entity
 public class Banda {
+
+    public Banda() {
+        this.musicas = new ArrayList<>();
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
