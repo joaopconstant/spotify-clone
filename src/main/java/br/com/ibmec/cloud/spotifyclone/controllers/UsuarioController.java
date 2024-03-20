@@ -148,7 +148,7 @@ public class UsuarioController {
     @PostMapping("{id}/playlist{idPlaylist}/adicionar/{idMusica}")
     public ResponseEntity adicionarMusicaPlaylist(@PathVariable("id")UUID id, @PathVariable("idPlaylist")UUID idPlaylist, @PathVariable("idMusica")UUID idMusica) {
 
-        // Faço as buscar do usuario e musica
+        // Faço as buscas do usuario e musica
         Optional<Usuario> optionalUsuario = this.repository.findById(id);
         Optional<Musica> optionalMusica = this.musicaRepository.findById(idMusica);
         Optional<Playlist> optionalPlaylist = this.playlistRepository.findById(idPlaylist);
