@@ -1,8 +1,11 @@
 package br.com.ibmec.cloud.spotifyclone.controllers;
 
 import br.com.ibmec.cloud.spotifyclone.controllers.request.LoginRequest;
+import br.com.ibmec.cloud.spotifyclone.controllers.request.PlaylistRequest;
+import br.com.ibmec.cloud.spotifyclone.models.Musica;
 import br.com.ibmec.cloud.spotifyclone.models.Playlist;
 import br.com.ibmec.cloud.spotifyclone.models.Usuario;
+import br.com.ibmec.cloud.spotifyclone.repository.MusicaRepository;
 import br.com.ibmec.cloud.spotifyclone.repository.PlaylistRepository;
 import br.com.ibmec.cloud.spotifyclone.repository.UsuarioRepository;
 import jakarta.validation.Valid;
@@ -23,6 +26,9 @@ public class UsuarioController {
 
     @Autowired
     private PlaylistRepository playlistRepository;
+
+    @Autowired
+    private MusicaRepository musicaRepository;
     private final String DEFAULT_PLAYLIST = "Músicas Curtidas";
 
     @PostMapping
@@ -60,5 +66,147 @@ public class UsuarioController {
         return usuarioOptional.map(usuario -> {
             return new ResponseEntity<>(usuario, HttpStatus.OK);
         }).orElse(new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
+    }
+
+    @PostMapping("{id}/favoritar/{idMusica}")
+    public ResponseEntity favoritar(@PathVariable("id")UUID id, @PathVariable("idMusica")UUID idMusica) {
+
+        // Faço as buscar do usuario e musica
+        Optional<Usuario> optionalUsuario = this.repository.findById(id);
+        Optional<Musica> optionalMusica = this.musicaRepository.findById(idMusica);
+
+        // Caso não ache o usuario, retornar um 404
+        if (optionalUsuario.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        // Caso não ache a musica a ser associada, retornar um 404
+        if (optionalMusica.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        Usuario usuario = optionalUsuario.get();
+        Musica musica = optionalMusica.get();
+
+        usuario.getPlaylists().get(0).getMusicas().add(musica);
+        playlistRepository.save(usuario.getPlaylists().get(0));
+
+        return new ResponseEntity(usuario, HttpStatus.OK);
+    }
+
+    @PostMapping("{id}/desfavoritar/{idMusica}")
+    public ResponseEntity desfavoritar(@PathVariable("id")UUID id, @PathVariable("idMusica")UUID idMusica) {
+
+        // Faço as buscar do usuario e musica
+        Optional<Usuario> optionalUsuario = this.repository.findById(id);
+        Optional<Musica> optionalMusica = this.musicaRepository.findById(idMusica);
+
+        // Caso não ache o usuario, retornar um 404
+        if (optionalUsuario.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        // Caso não ache a musica a ser associada, retornar um 404
+        if (optionalMusica.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        Usuario usuario = optionalUsuario.get();
+        Musica musica = optionalMusica.get();
+
+        for (Musica item : usuario.getPlaylists().get(0).getMusicas()) {
+            if (item.getId() == musica.getId()) {
+                usuario.getPlaylists().get(0).getMusicas().remove(musica);
+                break;
+            }
+        }
+        playlistRepository.save(usuario.getPlaylists().get(0));
+
+        return new ResponseEntity(usuario, HttpStatus.OK);
+    }
+
+    @PostMapping("{id}/criar-playlist")
+    public ResponseEntity adicionarPlaylist(@PathVariable("id")UUID id, @Valid @RequestBody PlaylistRequest request) {
+        Optional<Usuario> optionalUsuario = this.repository.findById(id);
+
+        // Caso não ache o usuario, retornar um 404
+        if (optionalUsuario.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        Usuario usuario = optionalUsuario.get();
+
+        Playlist playlist = new Playlist();
+        playlist.setUsuario(usuario);
+        playlist.setNome(request.getNome());
+
+        playlistRepository.save(playlist);
+
+        return new ResponseEntity(usuario, HttpStatus.OK);
+    }
+
+    @PostMapping("{id}/playlist{idPlaylist}/adicionar/{idMusica}")
+    public ResponseEntity adicionarMusicaPlaylist(@PathVariable("id")UUID id, @PathVariable("idPlaylist")UUID idPlaylist, @PathVariable("idMusica")UUID idMusica) {
+
+        // Faço as buscar do usuario e musica
+        Optional<Usuario> optionalUsuario = this.repository.findById(id);
+        Optional<Musica> optionalMusica = this.musicaRepository.findById(idMusica);
+        Optional<Playlist> optionalPlaylist = this.playlistRepository.findById(idPlaylist);
+
+        // Caso não ache o usuario, retornar um 404
+        if (optionalUsuario.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        // Caso não ache a musica a ser associada, retornar um 404
+        if (optionalMusica.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        Playlist playlist = optionalPlaylist.get();
+        Musica musica = optionalMusica.get();
+
+        // Adiciona na playlist
+        playlist.getMusicas().add(musica);
+
+        // Salva no banco de dados
+        playlistRepository.save(playlist);
+
+        return new ResponseEntity(optionalUsuario.get(), HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}/playlist{idPlaylist}/remover/{idMusica}")
+    public ResponseEntity removerMusicaPlaylist(@PathVariable("id")UUID id, @PathVariable("idPlaylist")UUID idPlaylist, @PathVariable("idMusica")UUID idMusica) {
+
+        // Faço as buscar do usuario e musica
+        Optional<Usuario> optionalUsuario = this.repository.findById(id);
+        Optional<Musica> optionalMusica = this.musicaRepository.findById(idMusica);
+        Optional<Playlist> optionalPlaylist = this.playlistRepository.findById(idPlaylist);
+
+        // Caso não ache o usuario, retornar um 404
+        if (optionalUsuario.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        // Caso não ache a musica a ser associada, retornar um 404
+        if (optionalMusica.isEmpty()) {
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+
+        Playlist playlist = optionalPlaylist.get();
+        Musica musica = optionalMusica.get();
+
+        // Remove da playlist
+        for (Musica item : playlist.getMusicas()) {
+            if (item.getId() == musica.getId()) {
+                playlist.getMusicas().remove(musica);
+                break;
+            }
+        }
+
+        // Salva no banco de dados
+        playlistRepository.save(playlist);
+
+        return new ResponseEntity(optionalUsuario.get(), HttpStatus.OK);
     }
 }
