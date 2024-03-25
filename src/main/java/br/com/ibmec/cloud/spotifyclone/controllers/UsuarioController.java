@@ -97,7 +97,7 @@ public class UsuarioController {
     @PostMapping("{id}/desfavoritar/{idMusica}")
     public ResponseEntity desfavoritar(@PathVariable("id")UUID id, @PathVariable("idMusica")UUID idMusica) {
 
-        // Faço as buscar do usuario e musica
+        // Faço as buscas do usuario e musica
         Optional<Usuario> optionalUsuario = this.repository.findById(id);
         Optional<Musica> optionalMusica = this.musicaRepository.findById(idMusica);
 
@@ -126,11 +126,11 @@ public class UsuarioController {
     }
 
     @PostMapping("{id}/criar-playlist")
-    public ResponseEntity adicionarPlaylist(@PathVariable("id")UUID id, @Valid @RequestBody PlaylistRequest request) {
+    public ResponseEntity criarPlaylist(@PathVariable("id")UUID id, @Valid @RequestBody PlaylistRequest request) {
         Optional<Usuario> optionalUsuario = this.repository.findById(id);
 
         // Caso não ache o usuario, retornar um 404
-        if (optionalUsuario.isEmpty()) {
+        if (optionalUsuario.isEmpty() == true) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
 
