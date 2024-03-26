@@ -35,6 +35,6 @@ public class Usuario {
     private String senha;
 
     @OneToMany
-    @JoinColumn(name = "playlist_id", referencedColumnName = "id")
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     private List<Playlist> playlists;
 }
