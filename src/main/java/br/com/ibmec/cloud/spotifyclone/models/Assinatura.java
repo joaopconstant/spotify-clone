@@ -14,11 +14,10 @@ public class Assinatura {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "assinatura_id", referencedColumnName = "id")
-    private Plano plano;
-
-    @OneToOne
     private Usuario usuario;
+
+    @ManyToOne
+    private Plano plano;
 
     @Column
     private Boolean ativo;

@@ -36,8 +36,9 @@ public class Usuario {
 
     @OneToMany
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
-    private List<Playlist> playlists;
+    private List<Assinatura> assinaturas;
 
-    @OneToOne
-    private Assinatura assinatura;
+    @OneToMany
+    @JoinColumn(name = "usuario_id", referencedColumnName = "id")
+    private List<Playlist> playlists;
 }

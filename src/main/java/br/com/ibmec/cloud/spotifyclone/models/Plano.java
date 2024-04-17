@@ -20,7 +20,4 @@ public class Plano {
     @Column
     private Double preco;
 
-    @OneToMany
-    @JoinColumn(name = "plano_id", referencedColumnName = "id")
-    private List<Assinatura> assinaturas;
 }
