@@ -2,9 +2,7 @@ package br.com.ibmec.cloud.spotifyclone.controllers;
 
 import br.com.ibmec.cloud.spotifyclone.controllers.request.LoginRequest;
 import br.com.ibmec.cloud.spotifyclone.controllers.request.PlaylistRequest;
-import br.com.ibmec.cloud.spotifyclone.models.Musica;
-import br.com.ibmec.cloud.spotifyclone.models.Playlist;
-import br.com.ibmec.cloud.spotifyclone.models.Usuario;
+import br.com.ibmec.cloud.spotifyclone.models.*;
 import br.com.ibmec.cloud.spotifyclone.repository.MusicaRepository;
 import br.com.ibmec.cloud.spotifyclone.repository.PlaylistRepository;
 import br.com.ibmec.cloud.spotifyclone.repository.UsuarioRepository;
