@@ -1,5 +1,6 @@
 package br.com.ibmec.cloud.spotifyclone.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 

@@ -2,16 +2,17 @@ package br.com.ibmec.cloud.spotifyclone.controllers;
 
 import br.com.ibmec.cloud.spotifyclone.controllers.request.LoginRequest;
 import br.com.ibmec.cloud.spotifyclone.controllers.request.PlaylistRequest;
+import br.com.ibmec.cloud.spotifyclone.controllers.request.UsuarioRequest;
 import br.com.ibmec.cloud.spotifyclone.models.*;
-import br.com.ibmec.cloud.spotifyclone.repository.MusicaRepository;
-import br.com.ibmec.cloud.spotifyclone.repository.PlaylistRepository;
-import br.com.ibmec.cloud.spotifyclone.repository.UsuarioRepository;
+import br.com.ibmec.cloud.spotifyclone.repository.*;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,13 +30,39 @@ public class UsuarioController {
     private MusicaRepository musicaRepository;
     private final String DEFAULT_PLAYLIST = "Músicas Curtidas";
 
-    @PostMapping
-    public ResponseEntity<Usuario> criar(@Valid @RequestBody Usuario usuario){
+    @Autowired
+    private PlanoRepository planoRepository;
 
+    @Autowired
+    private AssinaturaRepository assinaturaRepository;
+
+    @PostMapping
+    public ResponseEntity<Usuario> criar(@Valid @RequestBody UsuarioRequest usuarioRequest){
         // VALIDAR EMAIL NA BASE
-        if(this.repository.findUsuarioByEmail(usuario.getEmail()).isEmpty() == false){
+        if(this.repository.findUsuarioByEmail(usuarioRequest.getEmail()).isEmpty() == false){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+
+        // ENCONTRAR O PLANO PADRÃO 4f74acfe-022a-11ef-8e1e-000d3a9c688c
+        Optional<Plano> planoOptional = planoRepository.findById(usuarioRequest.getPlanoId());
+        if (planoOptional.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Plano planoPadrao = planoOptional.get();
+
+        // CRIA O USUARIO
+        Usuario usuario = new Usuario();
+        usuario.setNome(usuarioRequest.getNome());
+        usuario.setEmail(usuarioRequest.getEmail());
+        usuario.setSenha(usuarioRequest.getSenha());
+
+        // CRIA A ASSINATURA E ASSOCIA AO USUÁRIO
+        Assinatura assinatura = new Assinatura();
+        assinatura.setUsuario(usuario);
+        assinatura.setPlano(planoPadrao);
+        assinatura.setAtivo(true);
+
+        usuario.getAssinaturas().add(assinatura);
 
         // CRIAR A LISTA DEFAULT DO USUARIO
         Playlist playlist = new Playlist();
@@ -46,7 +73,7 @@ public class UsuarioController {
 
         this.repository.save(usuario);
         this.playlistRepository.save(playlist);
-
+        this.assinaturaRepository.save(assinatura);
         return new ResponseEntity<>(usuario, HttpStatus.CREATED);
     }
 
@@ -69,7 +96,7 @@ public class UsuarioController {
     @PostMapping("{id}/favoritar/{idMusica}")
     public ResponseEntity favoritar(@PathVariable("id")UUID id, @PathVariable("idMusica")UUID idMusica) {
 
-        // Faço as buscar do usuario e musica
+        // Faço as buscas do usuario e musica
         Optional<Usuario> optionalUsuario = this.repository.findById(id);
         Optional<Musica> optionalMusica = this.musicaRepository.findById(idMusica);
 
@@ -143,7 +170,7 @@ public class UsuarioController {
         return new ResponseEntity(usuario, HttpStatus.OK);
     }
 
-    @PostMapping("{id}/playlist{idPlaylist}/adicionar/{idMusica}")
+    @PostMapping("{id}/playlist/{idPlaylist}/adicionar/{idMusica}")
     public ResponseEntity adicionarMusicaPlaylist(@PathVariable("id")UUID id, @PathVariable("idPlaylist")UUID idPlaylist, @PathVariable("idMusica")UUID idMusica) {
 
         // Faço as buscas do usuario e musica

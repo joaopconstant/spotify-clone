@@ -36,9 +36,9 @@ public class Usuario {
 
     @OneToMany
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
-    private List<Assinatura> assinaturas;
+    private List<Assinatura> assinaturas = new ArrayList<>();
 
     @OneToMany
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
-    private List<Playlist> playlists;
+    private List<Playlist> playlists = new ArrayList<>();
 }
