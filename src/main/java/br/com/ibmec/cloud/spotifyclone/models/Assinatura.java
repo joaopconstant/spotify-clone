@@ -15,6 +15,7 @@ public class Assinatura {
     private UUID id;
 
     @ManyToOne
+    @JsonIgnore
     private Usuario usuario;
 
     @ManyToOne
