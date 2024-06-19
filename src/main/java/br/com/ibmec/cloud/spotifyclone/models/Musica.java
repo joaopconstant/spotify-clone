@@ -20,6 +20,9 @@ public class Musica {
     @Column
     private Integer duracao;
 
+    @Column
+    private String imagem;
+
     @ManyToOne()
     @JsonIgnore
     private Banda banda;

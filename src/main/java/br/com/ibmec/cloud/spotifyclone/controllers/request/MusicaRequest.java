@@ -9,4 +9,5 @@ public class MusicaRequest {
     private UUID id;
     private String nome;
     private Integer duracao;
+    private String imagem;
 }
