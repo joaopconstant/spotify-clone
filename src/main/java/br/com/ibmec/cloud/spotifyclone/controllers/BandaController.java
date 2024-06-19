@@ -74,6 +74,7 @@ public class BandaController {
         // Cria uma nova instancia de musica para salvar
         Musica musica = new Musica();
         musica.setNome(request.getNome());
+        musica.setImagem(request.getImagem());
         musica.setDuracao(request.getDuracao());
         musica.setBanda(banda);
         banda.getMusicas().add(musica);
