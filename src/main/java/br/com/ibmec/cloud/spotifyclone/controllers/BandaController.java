@@ -89,4 +89,23 @@ public class BandaController {
             return new ResponseEntity<>(item.getMusicas(), HttpStatus.OK);
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
+
+    @GetMapping("/musica/{id}")
+    public ResponseEntity<String> obterBandaDaMusica(@PathVariable("id") UUID idMusica) {
+        Optional<Musica> optionalMusica = musicaRepository.findById(idMusica);
+
+        if (optionalMusica.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Musica musica = optionalMusica.get();
+        Banda banda = musica.getBanda();
+
+        if (banda == null) {
+            return new ResponseEntity<>("Banda não encontrada para a música de ID " + idMusica, HttpStatus.NOT_FOUND);
+        }
+
+        String nomeBanda = banda.getNome();
+        return new ResponseEntity<>(nomeBanda, HttpStatus.OK);
+    }
 }
