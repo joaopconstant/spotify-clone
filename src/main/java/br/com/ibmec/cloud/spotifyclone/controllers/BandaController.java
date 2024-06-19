@@ -40,6 +40,7 @@ public class BandaController {
             Musica musica = new Musica();
             musica.setId(UUID.randomUUID());
             musica.setNome(item.getNome());
+            musica.setNome(item.getImagem());
             musica.setDuracao(item.getDuracao());
             musica.setBanda(banda);
 
