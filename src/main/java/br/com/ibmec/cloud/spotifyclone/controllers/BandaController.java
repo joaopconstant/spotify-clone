@@ -29,6 +29,8 @@ public class BandaController {
     public ResponseEntity<Banda> criar(@Valid @RequestBody BandaRequest request) {
         Banda banda = new Banda();
         banda.setNome(request.getNome());
+        banda.setImagem(request.getImagem());
+        banda.setDescricao(request.getDescricao());
 
         // Salva a banda no banco de dados
         this.repository.save(banda);
@@ -39,7 +41,6 @@ public class BandaController {
             musica.setId(UUID.randomUUID());
             musica.setNome(item.getNome());
             musica.setDuracao(item.getDuracao());
-            musica.setImagem(item.getImagem());
             musica.setBanda(banda);
 
             // Associa a banda à musica
@@ -91,22 +92,10 @@ public class BandaController {
         }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/musica/{id}")
-    public ResponseEntity<String> obterBandaDaMusica(@PathVariable("id") UUID idMusica) {
-        Optional<Musica> optionalMusica = musicaRepository.findById(idMusica);
-
-        if (optionalMusica.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        Musica musica = optionalMusica.get();
-        Banda banda = musica.getBanda();
-
-        if (banda == null) {
-            return new ResponseEntity<>("Banda não encontrada para a música de ID " + idMusica, HttpStatus.NOT_FOUND);
-        }
-
-        String nomeBanda = banda.getNome();
-        return new ResponseEntity<>(nomeBanda, HttpStatus.OK);
+    @GetMapping("/musica/{musicaId}")
+    public ResponseEntity<Banda> obterBandaPorMusica(@PathVariable("musicaId") UUID musicaId) {
+        return this.musicaRepository.findById(musicaId).map(musica -> {
+            return new ResponseEntity<>(musica.getBanda(), HttpStatus.OK);
+        }).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }
